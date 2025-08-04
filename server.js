@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 // Rate limiting
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 25, // limit each IP to 25 requests per windowMs
+  max: 5, // limit each IP to 5 requests per windowMs
   message: {
     error: 'Too many contact form submissions, please try again later.',
     status: 'rate_limit_exceeded'
@@ -105,7 +105,7 @@ const validateContactForm = (req, res, next) => {
 };
 
 // Email templates
-const createEmailTemplates = (data) => {
+const createEmailTemplates = (data, req) => {
   const { name, email, subject, message } = data;
   
   // Email to you (notification)
@@ -237,7 +237,8 @@ app.post('/api/contact', contactLimiter, validateContactForm, async (req, res) =
     
     // Create email templates
     const { notificationEmail, autoReplyEmail } = createEmailTemplates(
-      { name, email, subject, message }
+      { name, email, subject, message },
+      req
     );
     
     // Send notification email
